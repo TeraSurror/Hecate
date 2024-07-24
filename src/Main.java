@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Main {
     static boolean hasError = false;
+    static boolean hasRuntimeError = false;
+    private static final Interpreter interpreter = new Interpreter();
 
     public static void main(String[] args) throws IOException {
 
@@ -25,6 +27,7 @@ public class Main {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
         if (hasError) System.exit(65);
+        if (hasRuntimeError) System.exit(70);
     }
 
     private static void runPrompt() throws IOException {
@@ -48,8 +51,7 @@ public class Main {
         Expr expression = parser.parse();
 
         if (hasError) return;
-        // TODO
-        // Lots of stuff actually
+        interpreter.interpret(expression);
     }
 
     static void error(int line, String message) {
@@ -67,5 +69,10 @@ public class Main {
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] " + where + ": " + message);
         hasError = true;
+    }
+
+    static void runtimeError(RuntimeError error) {
+        System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
+        hasRuntimeError = true;
     }
 }
