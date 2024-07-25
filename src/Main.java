@@ -38,7 +38,7 @@ public class Main {
             System.out.print("> ");
             String line = reader.readLine();
             if(line == null) continue;
-            if ("exit()".equals(line)) break;
+            if ("exit()".equals(line.trim())) break;
             run(line);
             hasError = false;
         }
