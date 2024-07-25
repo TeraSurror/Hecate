@@ -1,24 +1,32 @@
-public class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
 
-    void interpret(Expr expr) {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+
+    void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expr);
-            System.out.println(stringify(value));
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError e) {
             Main.runtimeError(e);
         }
     }
 
-    private String stringify(Object value) {
-        if (value == null) return "nil";
-        if (value instanceof Double) {
-            String text = value.toString();
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            return text;
-        }
-        return value.toString();
+    private void execute(Stmt statement) {
+        statement.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 
     @Override
@@ -114,5 +122,17 @@ public class Interpreter implements Expr.Visitor<Object> {
         if (left instanceof Double && right instanceof Double) return;
 
         throw new RuntimeError(operator, "Operands must be a number");
+    }
+
+    private String stringify(Object value) {
+        if (value == null) return "nil";
+        if (value instanceof Double) {
+            String text = value.toString();
+            if (text.endsWith(".0")) {
+                text = text.substring(0, text.length() - 2);
+            }
+            return text;
+        }
+        return value.toString();
     }
 }
