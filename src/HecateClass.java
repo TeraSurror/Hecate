@@ -3,16 +3,22 @@ import java.util.Map;
 
 public class HecateClass implements HecateCallable {
     final String name;
+    final HecateClass superclass;
     private final Map<String, HecateFunction> methods;
 
-    HecateClass(String name, Map<String, HecateFunction> methods) {
+    HecateClass(String name, HecateClass superclass, Map<String, HecateFunction> methods) {
         this.name = name;
         this.methods = methods;
+        this.superclass = superclass;
     }
 
     HecateFunction findMethod(String name) {
         if (methods.containsKey(name)) {
             return methods.get(name);
+        }
+
+        if (superclass != null) {
+            return superclass.findMethod(name);
         }
 
         return null;
